@@ -42,7 +42,23 @@ if not GEMINI_API_KEY:
     )
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-3.5-flash-lite")
+
+
+def _generate(prompt: str) -> str:
+    """Helper to generate content with fallback/retry on rate limits."""
+    import time
+    for attempt in range(3):
+        try:
+            response = model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            if "429" in str(e) or "ResourceExhausted" in str(e):
+                if attempt < 2:
+                    time.sleep(3 * (attempt + 1))
+                    continue
+            raise e
+    return ""
 
 # The three pieces of information the "qualify" tool tries to collect,
 # in the order it asks for them.
@@ -67,6 +83,7 @@ class ChatAgent:
         # it across sessions instead of rebuilding it per user.
         self.vectorstore = build_vectorstore()
         self.qualification_answers = {field: None for field in QUALIFICATION_FIELDS}
+        self.current_field = None
         self.history = []  # list of (role, message) tuples, for context
 
     # -----------------------------------------------------------------
@@ -97,8 +114,8 @@ Message: "{user_message}"
 
 Respond with only one word: faq, qualify, or other."""
 
-        response = model.generate_content(routing_prompt)
-        label = response.text.strip().lower()
+        response_text = _generate(routing_prompt)
+        label = response_text.strip().lower()
         if label not in {"faq", "qualify", "other"}:
             label = "other"
         return label
@@ -121,29 +138,26 @@ Visitor question: {user_message}
 
 Answer in 2-3 concise sentences."""
 
-        response = model.generate_content(answer_prompt)
-        return response.text.strip()
+        return _generate(answer_prompt)
 
     # -----------------------------------------------------------------
     # TOOL 2: Lead qualification
     # -----------------------------------------------------------------
     def _qualify_tool(self, user_message: str) -> str:
-        # If we were mid-question, try to capture the answer against
-        # whichever field we most recently asked about.
-        pending_field = self._next_unanswered_field()
-        if pending_field and self.history and self.history[-1][0] == "agent_question":
-            self.qualification_answers[self.history[-1][1]] = user_message
+        # If we were mid-question, capture the answer against whichever field we asked about.
+        if self.current_field and self.qualification_answers[self.current_field] is None:
+            self.qualification_answers[self.current_field] = user_message
 
         next_field = self._next_unanswered_field()
 
         if next_field:
+            self.current_field = next_field
             question = QUALIFICATION_QUESTIONS[next_field]
-            # Remember which field this question corresponds to, so the
-            # *next* user message gets attributed correctly above.
             self.history.append(("agent_question", next_field))
             return question
 
         # All three fields are collected -> produce a lead summary/score.
+        self.current_field = None
         return self._score_lead()
 
     def _next_unanswered_field(self):

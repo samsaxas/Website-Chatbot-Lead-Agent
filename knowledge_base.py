@@ -54,7 +54,7 @@ def build_vectorstore() -> FAISS:
     chunks = splitter.split_documents(documents)
 
     embeddings = GoogleGenerativeAIEmbeddings(
-        model="models/embedding-001", google_api_key=GEMINI_API_KEY
+        model="models/gemini-embedding-001", google_api_key=GEMINI_API_KEY
     )
 
     return FAISS.from_documents(chunks, embeddings)

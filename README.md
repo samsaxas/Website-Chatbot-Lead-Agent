@@ -70,6 +70,39 @@ so no code changes are needed to swap in a different "client."
 Python · Streamlit · LangChain · FAISS · Gemini API (chat + embeddings) ·
 Retrieval-Augmented Generation · Agentic tool routing
 
+## Evaluation & Results
+
+Run the evaluation yourself with `python eval_metrics.py` (needs `GEMINI_API_KEY` in `.env`).
+
+**Setup**
+- Knowledge base: 3 documents (services, FAQ, pricing), split into 10 chunks (chunk size 400, overlap 50)
+- Embeddings: Gemini `embedding-001` | Vector store: FAISS | Retrieval: top-k similarity search
+- Retrieval test set: 15 hand-labelled questions. A chunk counts as relevant if it contains the phrase that answers the question
+- Routing test set: 20 hand-labelled messages (6 `faq`, 7 `qualify`, 7 `other`)
+
+**Retrieval metrics**
+
+| Metric | Score |
+|---|---|
+| MRR | _TBD_ |
+| Precision@1 | _TBD_ |
+| Recall@1 | _TBD_ |
+| Precision@3 | _TBD_ |
+| Recall@3 | _TBD_ |
+
+**Routing and latency**
+
+| Metric | Result |
+|---|---|
+| Routing accuracy (20 messages) | _TBD_ |
+| Avg routing latency | _TBD_ |
+| Avg retrieval latency | _TBD_ |
+| End-to-end FAQ answer latency | _TBD_ |
+
+**Known limitation**
+
+The router classifies each message without conversation history, so short answers to qualifying questions (for example "Around 2 lakhs") can be misrouted. See the MISS lines in the evaluation output.
+
 ## Notes
 
 This is a portfolio/learning project. The lead-scoring logic here is
