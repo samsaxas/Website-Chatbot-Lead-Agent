@@ -69,7 +69,6 @@ so no code changes are needed to swap in a different "client."
 
 Python · Streamlit · LangChain · FAISS · Gemini API (chat + embeddings) ·
 Retrieval-Augmented Generation · Agentic tool routing
-<<<<<<< HEAD
 
 ## Evaluation & Results
 
@@ -85,24 +84,27 @@ Run the evaluation yourself with `python eval_metrics.py` (needs `GEMINI_API_KEY
 
 | Metric | Score |
 |---|---|
-| MRR | _TBD_ |
-| Precision@1 | _TBD_ |
-| Recall@1 | _TBD_ |
-| Precision@3 | _TBD_ |
-| Recall@3 | _TBD_ |
+| MRR | 0.867 |
+| Precision@1 | 0.733 |
+| Recall@1 | 0.700 |
+| Precision@3 | 0.356 |
+| Recall@3 | 1.000 |
 
 **Routing and latency**
 
 | Metric | Result |
 |---|---|
-| Routing accuracy (20 messages) | _TBD_ |
-| Avg routing latency | _TBD_ |
-| Avg retrieval latency | _TBD_ |
-| End-to-end FAQ answer latency | _TBD_ |
+| Routing accuracy (20 messages) | 95% (19/20) |
+| Avg routing latency | 5.50 s |
+| Avg retrieval latency | 0.48 s |
+| End-to-end FAQ answer latency | 10.43 s |
 
-**Known limitation**
-
-The router classifies each message without conversation history, so short answers to qualifying questions (for example "Around 2 lakhs") can be misrouted. See the MISS lines in the evaluation output.
+**Observations**
+- Recall@3 of 1.0 means the correct chunk was always in the top 3. Precision@3 is low because most questions have only one relevant chunk.
+- The one routing miss: "I'm interested in your branding services, how do we start?" was routed to `faq` instead of `qualify`.
+- Routing is evaluated on single messages. Multi-turn behaviour (for example, a short answer like "Around 2 lakhs" right after a budget question) is not covered, because the router receives no conversation history.
+- Latency is dominated by the Gemini calls (routing and answer generation), not by FAISS retrieval.
+- The `google.generativeai` package is deprecated; migrating to `google.genai` is a planned improvement.
 
 ## Notes
 
@@ -110,5 +112,3 @@ This is a portfolio/learning project. The lead-scoring logic here is
 intentionally simple (collect 3 fields → summarize); a production version
 would weight answers, push captured leads into a CRM, and handle
 multi-turn corrections more robustly.
-=======
->>>>>>> 53940ce2add5064a07e44be5653f60d1a29c97c3
