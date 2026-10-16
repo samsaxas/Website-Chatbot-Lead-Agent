@@ -69,6 +69,7 @@ so no code changes are needed to swap in a different "client."
 
 Python · Streamlit · LangChain · FAISS · Gemini API (chat + embeddings) ·
 Retrieval-Augmented Generation · Agentic tool routing
+<<<<<<< HEAD
 
 ## Evaluation & Results
 
@@ -109,3 +110,5 @@ This is a portfolio/learning project. The lead-scoring logic here is
 intentionally simple (collect 3 fields → summarize); a production version
 would weight answers, push captured leads into a CRM, and handle
 multi-turn corrections more robustly.
+=======
+>>>>>>> 53940ce2add5064a07e44be5653f60d1a29c97c3
