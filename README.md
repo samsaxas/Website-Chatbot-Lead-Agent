@@ -106,6 +106,16 @@ Run the evaluation yourself with `python eval_metrics.py` (needs `GEMINI_API_KEY
 - Latency is dominated by the Gemini calls (routing and answer generation), not by FAISS retrieval.
 - The `google.generativeai` package is deprecated; migrating to `google.genai` is a planned improvement.
 
+
+## Results
+
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+![alt text](image-2.png)
+
+
 ## Notes
 
 This is a portfolio/learning project. The lead-scoring logic here is
